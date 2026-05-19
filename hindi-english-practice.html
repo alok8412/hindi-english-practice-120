@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Hindi → English Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;--border2:#444c56;
+  --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+  --accent:#238636;--accent-hover:#2ea043;--accent-border:#2ea043;
+  --blue:#1f6feb;--blue-bg:#0d419d22;--blue-text:#58a6ff;
+  --green:#238636;--green-bg:#12261e;--green-text:#3fb950;
+  --orange:#9e6a03;--orange-text:#d29922;
+  --red:#b62324;--red-bg:#2d1216;--red-text:#f85149;
+  --purple-bg:#1c1040;--purple-border:#6e40c9;--purple-text:#bc8cff;
+  --font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace;
+  --radius:6px;--radius-lg:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;min-height:100vh;line-height:1.6;}
+
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes popIn{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes correctFlash{0%,100%{background:var(--green-bg)}40%{background:#1e4030}}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+@keyframes streakPop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 #6e40c933}50%{box-shadow:0 0 12px 2px #6e40c966}}
+
+.fade-in{animation:fadeSlideIn .35s ease both;}
+.pop-in{animation:popIn .35s cubic-bezier(.34,1.56,.64,1) both;}
+
+/* ── Header ── */
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;height:56px;gap:16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px);}
+.header-logo{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:14px;font-weight:600;color:var(--text);text-decoration:none;}
+.header-logo svg{color:var(--text2);}
+.header-nav{display:flex;gap:2px;margin-left:20px;}
+.nav-btn{background:none;border:none;color:var(--text2);font-family:var(--font);font-size:13px;padding:6px 12px;border-radius:var(--radius);cursor:pointer;transition:background .15s,color .15s;}
+.nav-btn:hover{background:var(--bg3);color:var(--text);}
+.nav-btn.active{background:var(--bg3);color:var(--text);font-weight:500;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#1f6feb,#8957e5);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;cursor:pointer;}
+
+/* ── Repo bar ── */
+.repo-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:8px;font-size:13px;}
+.repo-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.repo-path a{color:var(--blue-text);text-decoration:none;font-weight:500;}
+.repo-path a:hover{text-decoration:underline;}
+.repo-path span{color:var(--text3);}
+.badge-open{background:var(--green-bg);border:1px solid var(--accent-border);color:var(--green-text);font-size:11px;padding:2px 10px;border-radius:20px;font-weight:500;display:inline-flex;align-items:center;gap:5px;margin-left:auto;}
+
+/* ── Layout ── */
+.main{max-width:1060px;margin:0 auto;padding:24px 20px;display:grid;grid-template-columns:1fr 275px;gap:20px;align-items:start;}
+@media(max-width:720px){.main{grid-template-columns:1fr;}.sidebar{display:none;}}
+
+/* ── PR Header ── */
+.pr-header{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:16px;animation:fadeSlideIn .4s ease;}
+.pr-title-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.pr-icon{width:28px;height:28px;background:var(--green-bg);border:1px solid var(--accent-border);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.pr-title{font-size:18px;font-weight:600;color:var(--text);line-height:1.3;}
+.pr-meta{font-size:12px;color:var(--text2);display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding-left:38px;}
+.pr-meta span{display:flex;align-items:center;gap:4px;}
+.added{color:var(--green-text);} .removed{color:var(--red-text);}
+
+/* ── Tabs ── */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto;}
+.tab{background:none;border:none;color:var(--text2);font-family:var(--font);font-size:13px;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:color .15s;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--text);border-bottom-color:#f78166;font-weight:500;}
+.tab-count{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:0 6px;font-size:11px;color:var(--text2);}
+
+/* ── Filter pills ── */
+.filter-row{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap;}
+.filter-pill{background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-family:var(--font);font-size:12px;padding:4px 12px;border-radius:20px;cursor:pointer;transition:all .15s;}
+.filter-pill:hover{border-color:var(--border2);color:var(--text);}
+.filter-pill.active{background:var(--blue-bg);border-color:var(--blue);color:var(--blue-text);}
+.filter-pill.easy.active{background:var(--green-bg);border-color:var(--accent-border);color:var(--green-text);}
+.filter-pill.medium.active{background:#2d1a0044;border-color:var(--orange);color:var(--orange-text);}
+.filter-pill.hard.active{background:var(--red-bg);border-color:var(--red);color:var(--red-text);}
+.filter-pill.cat.active{background:var(--purple-bg);border-color:var(--purple-border);color:var(--purple-text);}
+.filter-label{font-size:11px;color:var(--text3);align-self:center;font-family:var(--mono);margin-right:2px;}
+
+/* ── Stats ── */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;text-align:center;transition:border-color .2s,transform .2s;}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-1px);}
+.stat-num{font-size:24px;font-weight:600;font-family:var(--mono);color:var(--text);line-height:1;margin-bottom:4px;}
+.stat-label{font-size:11px;color:var(--text3);}
+
+/* ── Progress ── */
+.progress-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;margin-bottom:16px;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:8px;}
+.progress-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),#3fb950);border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1);width:0%;}
+
+/* ── Comment thread ── */
+.comment{display:flex;gap:12px;position:relative;}
+.comment-line{position:absolute;left:19px;top:40px;bottom:-12px;width:1px;background:var(--border);}
+.user-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;font-family:var(--mono);border:1px solid var(--border);}
+.comment-body{flex:1;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--bg2);margin-bottom:12px;overflow:hidden;transition:border-color .2s;}
+.comment-header{background:var(--bg3);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;}
+.comment-author{font-size:13px;font-weight:500;color:var(--text);}
+.comment-author span{font-weight:400;color:var(--text2);}
+.comment-time{font-size:12px;color:var(--text3);font-family:var(--mono);}
+.comment-content{padding:14px 16px;}
+.category-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);margin-bottom:10px;font-family:var(--mono);}
+.diff-badge{font-size:11px;padding:2px 8px;border-radius:20px;margin-left:6px;font-family:var(--mono);}
+.diff-badge.easy{background:var(--green-bg);border:1px solid var(--accent-border);color:var(--green-text);}
+.diff-badge.medium{background:#2d1a0044;border:1px solid var(--orange);color:var(--orange-text);}
+.diff-badge.hard{background:var(--red-bg);border:1px solid var(--red);color:var(--red-text);}
+.hindi-sentence{font-size:22px;font-weight:500;color:var(--text);line-height:1.4;margin:6px 0 10px;}
+.hint{font-size:13px;color:var(--text3);font-style:italic;margin-bottom:4px;}
+.q-num{font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:6px;}
+
+/* ── Textarea ── */
+.input-wrap{padding:14px 16px;border-top:1px solid var(--border);}
+textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;color:var(--text);font-family:var(--font);font-size:14px;resize:none;min-height:70px;outline:none;transition:border-color .15s,box-shadow .15s;line-height:1.5;}
+textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1f6feb22;}
+textarea:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ── Buttons ── */
+.btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+.btn{font-family:var(--font);font-size:13px;font-weight:500;padding:6px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg3);color:var(--text);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;}
+.btn:hover{background:var(--border);}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important;}
+.btn-green{background:var(--accent);border-color:var(--accent-hover);color:#fff;}
+.btn-green:hover{background:var(--accent-hover);}
+.btn-ai{background:var(--purple-bg);border-color:var(--purple-border);color:var(--purple-text);animation:glow 2.5s ease-in-out infinite;}
+.btn-ai:hover{background:#251650;}
+.btn-skip{margin-left:auto;color:var(--text3);border-color:var(--border);}
+.btn-skip:hover{color:var(--text2);}
+
+/* ── Answer box ── */
+.answer-box{margin:0 16px 14px;padding:13px 15px;border-radius:var(--radius);font-size:13px;line-height:1.7;display:none;}
+.answer-box.show{display:block;animation:fadeSlideIn .25s ease;}
+.answer-correct{background:var(--green-bg);border:1px solid var(--accent-border);color:var(--green-text);animation:correctFlash .45s ease!important;}
+.answer-wrong{background:var(--red-bg);border:1px solid var(--red);color:var(--text);animation:wrongShake .35s ease!important;}
+.answer-reveal{background:var(--bg3);border:1px solid var(--border);color:var(--text);}
+.answer-ai{background:var(--purple-bg);border:1px solid var(--purple-border);color:var(--text);}
+.correct-text{font-weight:600;color:var(--text);margin:6px 0 0;font-size:14px;}
+.note-text{font-size:12px;color:var(--text2);margin:6px 0 0;font-family:var(--mono);}
+
+/* AI result components */
+.ai-score-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.ai-score-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:3px 10px;border-radius:12px;background:#2a1a4a;border:1px solid var(--purple-border);color:var(--purple-text);font-family:var(--mono);font-weight:600;}
+.ai-verdict{font-size:12px;color:var(--text3);}
+.ai-feedback{font-size:13px;color:var(--text2);margin:5px 0;line-height:1.6;}
+.ai-loading{display:flex;align-items:center;gap:10px;color:var(--text3);font-size:13px;}
+.ai-spinner{width:15px;height:15px;border:2px solid var(--border2);border-top-color:var(--purple-text);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+.score-meter{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.score-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+
+/* ── Reactions ── */
+.reactions{display:flex;gap:6px;padding:8px 14px 10px;border-top:1px solid var(--border);}
+.reaction{font-size:12px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:2px 8px;cursor:pointer;color:var(--text2);font-family:var(--mono);transition:all .15s;}
+.reaction:hover{border-color:var(--blue-text);color:var(--blue-text);}
+
+/* ── Event line ── */
+.event-line{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--text3);margin-bottom:12px;padding-left:4px;}
+.event-dot{width:38px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.event-dot span{width:8px;height:8px;border-radius:50%;background:var(--border2);display:block;}
+
+/* ── Complete card ── */
+.complete-card{background:var(--green-bg);border:1px solid var(--accent-border);border-radius:var(--radius-lg);padding:36px 24px;text-align:center;display:none;}
+.complete-card.show{display:block;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
+.complete-card h2{font-size:22px;color:var(--green-text);margin-bottom:8px;}
+.complete-card p{color:var(--text2);font-size:14px;}
+.big-score{font-size:48px;font-family:var(--mono);font-weight:600;color:var(--green-text);margin:14px 0;}
+.score-breakdown{display:flex;justify-content:center;gap:20px;margin:10px 0 16px;font-size:13px;font-family:var(--mono);}
+
+/* ── Sidebar ── */
+.sidebar{display:flex;flex-direction:column;gap:12px;}
+.side-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;}
+.side-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.side-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);margin-bottom:8px;}
+.skill-bar-wrap{margin-bottom:9px;}
+.skill-name{font-size:12px;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between;}
+.skill-bar{height:4px;background:var(--bg3);border-radius:2px;}
+.skill-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),#3fb950);width:0%;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.streak-num{font-size:34px;font-family:var(--mono);font-weight:600;color:var(--orange-text);text-align:center;margin:4px 0;transition:transform .2s;}
+.categories-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.cat-tag{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);}
+.ai-badge{display:flex;align-items:center;gap:8px;background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:var(--radius);padding:9px 12px;font-size:12px;color:var(--purple-text);line-height:1.4;}
+.ai-dot{width:7px;height:7px;border-radius:50%;background:var(--purple-text);flex-shrink:0;animation:pulse 1.6s ease-in-out infinite;}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <a class="header-logo" href="#">
+    <svg width="22" height="22" viewBox="0 0 98 96" fill="currentColor"><path d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"/></svg>
+    hindi-english-practice
+  </a>
+  <nav class="header-nav">
+    <button class="nav-btn active">Code</button>
+    <button class="nav-btn">Issues</button>
+    <button class="nav-btn">Pull requests</button>
+    <button class="nav-btn">Actions</button>
+  </nav>
+  <div class="header-right"><div class="avatar">YO</div></div>
+</header>
+
+<!-- Repo bar -->
+<div class="repo-bar">
+  <div class="repo-path">
+    <a href="#">you</a><span>/</span>
+    <a href="#"><strong>hindi-english-practice</strong></a>
+    <span>›</span><span>Pull request #9</span>
+  </div>
+  <span class="badge-open">
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354Z"/></svg>
+    Open
+  </span>
+</div>
+
+<!-- Main -->
+<div class="main">
+<div class="left-col">
+
+  <div class="pr-header">
+    <div class="pr-title-row">
+      <div class="pr-icon">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="#3fb950"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354Z"/></svg>
+      </div>
+      <h1 class="pr-title">feat: 120 sentences · AI-powered smart checking · 12 categories · animated UI</h1>
+    </div>
+    <div class="pr-meta">
+      <span>120 sentences</span><span>12 categories</span><span>AI grading</span>
+      <span class="added">+80</span><span class="removed">−0</span>
+      <span style="color:var(--text3)">opened today by <strong style="color:var(--text2)">you</strong></span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active">
+      <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h11A1.5 1.5 0 0 1 15 2.5v8.75a1.5 1.5 0 0 1-1.5 1.5H9.06l-2.573 2.573A.5.5 0 0 1 5.5 15h-1a.5.5 0 0 1-.5-.5V12.75H2.5A1.5 1.5 0 0 1 1 11.25Z"/></svg>
+      Conversation <span class="tab-count" id="conv-count">120</span>
+    </button>
+    <button class="tab">Files changed <span class="tab-count">1</span></button>
+    <button class="tab">✓ Checks <span class="tab-count" style="color:var(--purple-text)">AI</span></button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-num" id="stat-done">0</div><div class="stat-label">Answered</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-correct" style="color:var(--green-text)">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-wrong" style="color:var(--red-text)">0</div><div class="stat-label">Wrong</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-pct" style="color:var(--blue-text)">0%</div><div class="stat-label">Accuracy</div></div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="prog-label">Progress — 0 of 120</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <!-- Difficulty filter -->
+  <div class="filter-row">
+    <span class="filter-label">Level:</span>
+    <button class="filter-pill active" onclick="setDiff('all',this)">All</button>
+    <button class="filter-pill easy" onclick="setDiff('easy',this)">🟢 Easy (40)</button>
+    <button class="filter-pill medium" onclick="setDiff('medium',this)">🟡 Medium (40)</button>
+    <button class="filter-pill hard" onclick="setDiff('hard',this)">🔴 Hard (40)</button>
+  </div>
+
+  <!-- Category filter -->
+  <div class="filter-row" style="margin-top:-4px">
+    <span class="filter-label">Cat:</span>
+    <button class="filter-pill cat active" onclick="setCat('all',this)">All</button>
+    <button class="filter-pill cat" onclick="setCat('Daily life',this)">Daily life</button>
+    <button class="filter-pill cat" onclick="setCat('Work',this)">Work</button>
+    <button class="filter-pill cat" onclick="setCat('Family',this)">Family</button>
+    <button class="filter-pill cat" onclick="setCat('Nature',this)">Nature</button>
+    <button class="filter-pill cat" onclick="setCat('Travel',this)">Travel</button>
+    <button class="filter-pill cat" onclick="setCat('Education',this)">Education</button>
+    <button class="filter-pill cat" onclick="setCat('Emotions',this)">Emotions</button>
+    <button class="filter-pill cat" onclick="setCat('Proverbs',this)">Proverbs</button>
+    <button class="filter-pill cat" onclick="setCat('Motivation',this)">Motivation</button>
+    <button class="filter-pill cat" onclick="setCat('Food',this)">Food</button>
+    <button class="filter-pill cat" onclick="setCat('Health',this)">Health</button>
+    <button class="filter-pill cat" onclick="setCat('Technology',this)">Tech</button>
+  </div>
+
+  <!-- Thread -->
+  <div class="comment-thread" id="thread">
+
+    <!-- Question card -->
+    <div class="comment" id="q-comment">
+      <div style="position:relative">
+        <div class="user-avatar" style="background:#0d419d33;color:#58a6ff">AI</div>
+        <div class="comment-line"></div>
+      </div>
+      <div class="comment-body" style="flex:1">
+        <div class="comment-header">
+          <div>
+            <span class="comment-author">hindi-bot <span>posted a question</span></span>
+            <span class="diff-badge easy" id="diff-badge">Easy</span>
+          </div>
+          <span class="comment-time" id="q-time">just now</span>
+        </div>
+        <div class="comment-content">
+          <div class="q-num" id="q-num">Question 1 of 120</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+            <span class="category-badge" id="cat-badge">Daily life</span>
+            <span style="font-size:12px;color:var(--text3)">Translate to English:</span>
+          </div>
+          <div class="hindi-sentence" id="hindi-q">Loading…</div>
+          <div class="hint" id="hint-q"></div>
+        </div>
+        <div class="reactions">
+          <span class="reaction">👍 3</span>
+          <span class="reaction">🤔 1</span>
+          <span class="reaction">🇮🇳 2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Answer card -->
+    <div class="comment" id="a-comment">
+      <div>
+        <div class="user-avatar" style="background:#12261e;color:#3fb950">YO</div>
+      </div>
+      <div class="comment-body" style="flex:1">
+        <div class="comment-header">
+          <span class="comment-author">you <span>are translating</span></span>
+          <span class="comment-time">now</span>
+        </div>
+        <div class="input-wrap">
+          <textarea id="user-ans" placeholder="Type your English translation… (Enter = quick check · Shift+Enter = newline)" rows="3"></textarea>
+        </div>
+        <div class="answer-box" id="answer-box"></div>
+        <div class="btn-row" style="padding:0 16px 14px">
+          <button class="btn btn-green" id="btn-check" onclick="checkAnswer()">
+            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>
+            Check
+          </button>
+          <button class="btn btn-ai" id="btn-ai" onclick="aiCheck()">
+            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0Zm-.5 4.5a.5.5 0 0 0-1 0v3.793L4.854 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 8.293V4.5Z"/></svg>
+            AI Grade ✦
+          </button>
+          <button class="btn" id="btn-reveal" onclick="revealAnswer()">
+            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 0 1 0 1.798c-.45.678-1.367 1.932-2.637 3.023C11.671 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 0 1 0-1.798c.45-.677 1.367-1.931 2.637-3.022C4.33 2.992 6.019 2 8 2ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>
+            Reveal
+          </button>
+          <button class="btn btn-skip" onclick="nextQuestion()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-line" id="event-line" style="display:none">
+      <div class="event-dot"><span></span></div>
+      <span id="event-text">Moving to next question…</span>
+    </div>
+  </div>
+
+  <!-- Complete -->
+  <div class="complete-card" id="complete-card">
+    <svg width="44" height="44" fill="#3fb950" viewBox="0 0 16 16" style="margin-bottom:8px"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14Zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16Z"/><path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05Z"/></svg>
+    <h2>Session complete!</h2>
+    <div class="big-score" id="final-score">0/120</div>
+    <div class="score-breakdown">
+      <span style="color:var(--green-text)">✓ <span id="fs-c">0</span> correct</span>
+      <span style="color:var(--red-text)">✗ <span id="fs-w">0</span> wrong</span>
+      <span style="color:var(--blue-text)"><span id="fs-p">0</span>% accuracy</span>
+    </div>
+    <p id="final-msg">Keep practicing to improve!</p>
+    <div style="margin-top:20px;display:flex;justify-content:center;gap:10px">
+      <button class="btn btn-green" onclick="restart()">🔄 Practice again</button>
+      <button class="btn" onclick="setDiff('hard',document.querySelector(\'.filter-pill.hard\'));restart()">🔴 Hard mode</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="side-card">
+    <div class="ai-badge">
+      <div class="ai-dot"></div>
+      <div><strong style="color:var(--purple-text)">AI Grade</strong> active — checks meaning, not just exact wording</div>
+    </div>
+  </div>
+
+  <div class="side-card">
+    <div class="side-label">Reviewers</div>
+    <div class="side-item">
+      <div style="width:24px;height:24px;border-radius:50%;background:#12261e;border:1px solid #238636;display:flex;align-items:center;justify-content:center;font-size:10px;color:#3fb950;font-family:var(--mono)">AI</div>
+      hindi-bot
+      <svg width="12" height="12" fill="#3fb950" viewBox="0 0 16 16" style="margin-left:auto"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>
+    </div>
+  </div>
+
+  <div class="side-card">
+    <div class="side-label">Current streak 🔥</div>
+    <div class="streak-num" id="streak-num">0</div>
+    <div style="font-size:12px;color:var(--text3);text-align:center">correct in a row</div>
+  </div>
+
+  <div class="side-card">
+    <div class="side-label">Category skills</div>
+    <div class="skill-bar-wrap"><div class="skill-name"><span>Daily life</span><span id="sk-daily">—</span></div><div class="skill-bar"><div class="skill-fill" id="sf-daily"></div></div></div>
+    <div class="skill-bar-wrap"><div class="skill-name"><span>Work</span><span id="sk-work">—</span></div><div class="skill-bar"><div class="skill-fill" id="sf-work"></div></div></div>
+    <div class="skill-bar-wrap"><div class="skill-name"><span>Education</span><span id="sk-edu">—</span></div><div class="skill-bar"><div class="skill-fill" id="sf-edu"></div></div></div>
+    <div class="skill-bar-wrap"><div class="skill-name"><span>Emotions</span><span id="sk-emo">—</span></div><div class="skill-bar"><div class="skill-fill" id="sf-emo"></div></div></div>
+    <div class="skill-bar-wrap"><div class="skill-name"><span>Nature</span><span id="sk-nat">—</span></div><div class="skill-bar"><div class="skill-fill" id="sf-nat"></div></div></div>
+    <div class="skill-bar-wrap"><div class="skill-name"><span>Travel</span><span id="sk-trv">—</span></div><div class="skill-bar"><div class="skill-fill" id="sf-trv"></div></div></div>
+    <div class="skill-bar-wrap"><div class="skill-name"><span>Motivation</span><span id="sk-mot">—</span></div><div class="skill-bar"><div class="skill-fill" id="sf-mot"></div></div></div>
+    <div class="skill-bar-wrap"><div class="skill-name"><span>Proverbs</span><span id="sk-pro">—</span></div><div class="skill-bar"><div class="skill-fill" id="sf-pro"></div></div></div>
+    <div class="skill-bar-wrap"><div class="skill-name"><span>Health</span><span id="sk-hlt">—</span></div><div class="skill-bar"><div class="skill-fill" id="sf-hlt"></div></div></div>
+    <div class="skill-bar-wrap"><div class="skill-name"><span>Food</span><span id="sk-fod">—</span></div><div class="skill-bar"><div class="skill-fill" id="sf-fod"></div></div></div>
+  </div>
+
+  <div class="side-card">
+    <div class="side-label">Labels</div>
+    <div class="categories-grid">
+      <span class="cat-tag">hindi</span><span class="cat-tag">english</span>
+      <span class="cat-tag">AI-grade</span><span class="cat-tag">120-q</span>
+      <span class="cat-tag">12-cats</span>
+    </div>
+  </div>
+
+  <div class="side-card">
+    <div class="side-label">Linked issues</div>
+    <div style="font-size:13px;color:var(--blue-text)">#3 — Hindi to English self-practice</div>
+  </div>
+</aside>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   120 QUESTIONS — 40 easy · 40 medium · 40 hard
+══════════════════════════════════════════ */
+const Q=[
+/* ── EASY (1-40) ─────────────────────────────────────── */
+{h:"सूरज पूरब से उगता है।",a:"The sun rises from the east.",hint:"Direction the sun rises",cat:"Nature",lvl:"easy",note:"'Sooraj'=sun, 'poorab'=east, 'ugta hai'=rises."},
+{h:"मुझे पानी चाहिए।",a:"I need water.",hint:"Asking for water",cat:"Daily life",lvl:"easy",note:"'Mujhe chahiye'=I need."},
+{h:"वह बहुत तेज़ दौड़ता है।",a:"He runs very fast.",hint:"Describing speed",cat:"Sports",lvl:"easy",note:"'Tez'=fast, 'daudta hai'=runs."},
+{h:"दरवाज़ा खुला है।",a:"The door is open.",hint:"State of the door",cat:"Daily life",lvl:"easy",note:"'Darwaza'=door, 'khula hai'=is open."},
+{h:"मेरी माँ खाना बना रही हैं।",a:"My mother is cooking food.",hint:"Mother's current activity",cat:"Family",lvl:"easy",note:"'Khaana bana rahi hain'=is cooking."},
+{h:"आज सोमवार है।",a:"Today is Monday.",hint:"Day of the week",cat:"Daily life",lvl:"easy",note:"'Aaj'=today, 'Somvaar'=Monday."},
+{h:"मेरे दो भाई हैं।",a:"I have two brothers.",hint:"Siblings",cat:"Family",lvl:"easy",note:"'Mere do bhai hain.'"},
+{h:"बच्चे पार्क में खेल रहे हैं।",a:"The children are playing in the park.",hint:"Children playing",cat:"Daily life",lvl:"easy",note:"'Bachche'=children."},
+{h:"मुझे संगीत बहुत पसंद है।",a:"I like music very much.",hint:"Hobby you love",cat:"Hobbies",lvl:"easy",note:"'Sangeet'=music, 'pasand hai'=like."},
+{h:"कल रात बारिश हुई।",a:"It rained last night.",hint:"Past weather",cat:"Nature",lvl:"easy",note:"'Kal raat'=last night, 'baarish hui'=it rained."},
+{h:"वह स्कूल जाता है।",a:"He goes to school.",hint:"Daily routine",cat:"Education",lvl:"easy",note:"'Vah school jaata hai.'"},
+{h:"मेरा नाम राहुल है।",a:"My name is Rahul.",hint:"Self-introduction",cat:"Daily life",lvl:"easy",note:"'Mera naam'=my name."},
+{h:"यह खाना बहुत स्वादिष्ट है।",a:"This food is very delicious.",hint:"Complimenting food",cat:"Food",lvl:"easy",note:"'Swaadisht'=delicious."},
+{h:"वे बहुत खुश हैं।",a:"They are very happy.",hint:"Mood description",cat:"Emotions",lvl:"easy",note:"'Khush'=happy."},
+{h:"आज मौसम बहुत अच्छा है।",a:"The weather is very good today.",hint:"Today's weather",cat:"Nature",lvl:"easy",note:"'Mausam'=weather, 'accha'=good."},
+{h:"मेरा घर यहाँ से दूर है।",a:"My house is far from here.",hint:"Distance of home",cat:"Daily life",lvl:"easy",note:"'Yahan se door'=far from here."},
+{h:"वह एक अच्छा दोस्त है।",a:"He is a good friend.",hint:"Describing a friend",cat:"Daily life",lvl:"easy",note:"'Accha dost'=good friend."},
+{h:"मैं चाय पीना चाहता हूँ।",a:"I want to drink tea.",hint:"Expressing a desire",cat:"Food",lvl:"easy",note:"'Chai peena chahta hoon.'"},
+{h:"बिल्ली छत पर बैठी है।",a:"The cat is sitting on the roof.",hint:"Where is the cat?",cat:"Daily life",lvl:"easy",note:"'Billi'=cat, 'chhat'=roof."},
+{h:"कल मेरी परीक्षा है।",a:"I have an exam tomorrow.",hint:"Upcoming exam",cat:"Education",lvl:"easy",note:"'Pareeksha'=exam."},
+{h:"वह हर रोज़ सुबह टहलता है।",a:"He walks every morning.",hint:"Morning routine",cat:"Daily life",lvl:"easy",note:"'Har roz subah'=every morning."},
+{h:"मुझे नींद आ रही है।",a:"I am feeling sleepy.",hint:"Feeling tired",cat:"Health",lvl:"easy",note:"'Neend aa rahi hai.'"},
+{h:"आसमान नीला है।",a:"The sky is blue.",hint:"Sky colour",cat:"Nature",lvl:"easy",note:"'Aasman'=sky, 'neela'=blue."},
+{h:"मेरी बहन डॉक्टर है।",a:"My sister is a doctor.",hint:"Sister's profession",cat:"Family",lvl:"easy",note:"'Behen'=sister."},
+{h:"दुकान बंद है।",a:"The shop is closed.",hint:"Shop status",cat:"Daily life",lvl:"easy",note:"'Dukaan'=shop, 'band'=closed."},
+{h:"फूल बहुत सुंदर हैं।",a:"The flowers are very beautiful.",hint:"Flowers",cat:"Nature",lvl:"easy",note:"'Phool'=flowers, 'sundar'=beautiful."},
+{h:"मैं दिल्ली में रहता हूँ।",a:"I live in Delhi.",hint:"Where you live",cat:"Daily life",lvl:"easy",note:"'Rahta hoon'=I live."},
+{h:"गाड़ी तेज़ चल रही है।",a:"The car is moving fast.",hint:"Car speed",cat:"Travel",lvl:"easy",note:"'Gaadi'=car."},
+{h:"मेरे पिताजी ऑफिस गए हैं।",a:"My father has gone to the office.",hint:"Father's location",cat:"Family",lvl:"easy",note:"'Pitaji'=father."},
+{h:"वह किताब पढ़ रही है।",a:"She is reading a book.",hint:"Current activity",cat:"Education",lvl:"easy",note:"'Kitaab'=book."},
+{h:"मुझे भूख लगी है।",a:"I am hungry.",hint:"Feeling hungry",cat:"Health",lvl:"easy",note:"'Bhookh lagi hai.'"},
+{h:"बाज़ार में बहुत भीड़ है।",a:"There is a lot of crowd in the market.",hint:"Crowded market",cat:"Daily life",lvl:"easy",note:"'Bheed'=crowd."},
+{h:"खिड़की खोल दो।",a:"Open the window.",hint:"An instruction",cat:"Daily life",lvl:"easy",note:"'Khidki'=window."},
+{h:"कुत्ता भौंक रहा है।",a:"The dog is barking.",hint:"Animal sound",cat:"Daily life",lvl:"easy",note:"'Kutta'=dog, 'bhaunk raha hai'=barking."},
+{h:"हम साथ मिलकर काम करेंगे।",a:"We will work together.",hint:"Teamwork",cat:"Work",lvl:"easy",note:"'Saath milkar'=together."},
+{h:"नदी में पानी बह रहा है।",a:"Water is flowing in the river.",hint:"River flow",cat:"Nature",lvl:"easy",note:"'Nadi'=river."},
+{h:"सेब लाल और मीठे हैं।",a:"The apples are red and sweet.",hint:"Fruit description",cat:"Food",lvl:"easy",note:"'Seb'=apple, 'meethe'=sweet."},
+{h:"वह अच्छी तरह खाना बनाती है।",a:"She cooks food well.",hint:"Cooking skill",cat:"Food",lvl:"easy",note:"'Acchi tarah'=well."},
+{h:"रात को तारे चमकते हैं।",a:"Stars shine at night.",hint:"Night sky",cat:"Nature",lvl:"easy",note:"'Taare'=stars, 'chamakte'=shine."},
+{h:"मेरा पसंदीदा रंग नीला है।",a:"My favourite colour is blue.",hint:"Favourite colour",cat:"Daily life",lvl:"easy",note:"'Pasandida rang'=favourite colour."},
+
+/* ── MEDIUM (41-80) ──────────────────────────────────── */
+{h:"मुझे यह काम जल्दी खत्म करना है।",a:"I have to finish this work quickly.",hint:"Work urgency",cat:"Work",lvl:"medium",note:"'Jaldi khatam karna hai.'"},
+{h:"क्या आपने कभी विदेश यात्रा की है?",a:"Have you ever traveled abroad?",hint:"Travel experience",cat:"Travel",lvl:"medium",note:"'Videsh'=abroad."},
+{h:"वह हमेशा समय पर आता है।",a:"He always comes on time.",hint:"Punctuality",cat:"Work",lvl:"medium",note:"'Hamesha'=always, 'samay par'=on time."},
+{h:"उसने परीक्षा में अच्छे अंक लाए।",a:"He got good marks in the exam.",hint:"Academic result",cat:"Education",lvl:"medium",note:"'Ank'=marks."},
+{h:"हमें पर्यावरण की रक्षा करनी चाहिए।",a:"We should protect the environment.",hint:"Environment care",cat:"Nature",lvl:"medium",note:"'Paryavaran'=environment."},
+{h:"वह अपनी गलती मानने को तैयार नहीं है।",a:"He is not ready to admit his mistake.",hint:"Stubborn person",cat:"Emotions",lvl:"medium",note:"'Galti maanna'=admit mistake."},
+{h:"मैंने पिछले साल नई नौकरी शुरू की।",a:"I started a new job last year.",hint:"Career change",cat:"Work",lvl:"medium",note:"'Pichhle saal'=last year."},
+{h:"क्या तुम मेरे साथ बाज़ार चलोगे?",a:"Will you come to the market with me?",hint:"Invitation",cat:"Daily life",lvl:"medium",note:"'Mere saath chaloge.'"},
+{h:"इस महीने बहुत खर्चा हो गया।",a:"There was a lot of expenditure this month.",hint:"Monthly expenses",cat:"Work",lvl:"medium",note:"'Kharcha'=expenditure."},
+{h:"जब तक वह नहीं आता, हम इंतज़ार करेंगे।",a:"We will wait until he comes.",hint:"Conditional waiting",cat:"Daily life",lvl:"medium",note:"'Jab tak'=until."},
+{h:"मुझे उससे माफ़ी माँगनी होगी।",a:"I will have to apologize to him.",hint:"Need to apologise",cat:"Emotions",lvl:"medium",note:"'Maafi maangni hogi.'"},
+{h:"वह हर रोज़ एक घंटा किताब पढ़ती है।",a:"She reads a book for one hour every day.",hint:"Daily reading",cat:"Education",lvl:"medium",note:"'Ek ghanta'=one hour."},
+{h:"मेरे दोस्त ने मुझे जन्मदिन की बधाई दी।",a:"My friend wished me a happy birthday.",hint:"Birthday wish",cat:"Daily life",lvl:"medium",note:"'Janamdin ki badhai'=birthday wishes."},
+{h:"नदी में पानी बहुत कम हो गया है।",a:"The water level in the river has reduced a lot.",hint:"River water level",cat:"Nature",lvl:"medium",note:"'Paani kam ho gaya.'"},
+{h:"मौसम बदलने से मुझे सर्दी हो गई।",a:"I caught a cold due to the change in weather.",hint:"Weather and health",cat:"Health",lvl:"medium",note:"'Sardi ho gayi'=caught a cold."},
+{h:"वह बिना बताए चला गया।",a:"He left without telling anyone.",hint:"Leaving suddenly",cat:"Emotions",lvl:"medium",note:"'Bina bataye'=without telling."},
+{h:"इस सड़क पर हमेशा ट्रैफिक रहता है।",a:"There is always traffic on this road.",hint:"Traffic situation",cat:"Travel",lvl:"medium",note:"'Sadak par'=on the road."},
+{h:"मुझे उसकी बातें याद आती हैं।",a:"I miss what he used to say.",hint:"Missing someone",cat:"Emotions",lvl:"medium",note:"'Uski baatein yaad aati hain.'"},
+{h:"क्या तुमने अपना होमवर्क कर लिया?",a:"Have you done your homework?",hint:"Homework check",cat:"Education",lvl:"medium",note:"'Homework kar liya.'"},
+{h:"वे अगले महीने शादी कर रहे हैं।",a:"They are getting married next month.",hint:"Upcoming wedding",cat:"Daily life",lvl:"medium",note:"'Agle mahine'=next month."},
+{h:"उसने पूरी रात जागकर पढ़ाई की।",a:"He studied all night without sleeping.",hint:"Studying all night",cat:"Education",lvl:"medium",note:"'Poori raat jaagkar.'"},
+{h:"बाहर बहुत तेज़ धूप है।",a:"There is very strong sunlight outside.",hint:"Sunny weather",cat:"Nature",lvl:"medium",note:"'Tej dhoop'=strong sunlight."},
+{h:"क्या आप मुझे रास्ता बता सकते हैं?",a:"Can you tell me the way?",hint:"Asking for directions",cat:"Travel",lvl:"medium",note:"'Raasta bata sakte hain.'"},
+{h:"मुझे आज की मीटिंग याद नहीं रही।",a:"I forgot about today's meeting.",hint:"Forgot a meeting",cat:"Work",lvl:"medium",note:"'Meeting yaad nahi rahi.'"},
+{h:"वह हर काम सोच-समझकर करती है।",a:"She does every task thoughtfully.",hint:"Careful person",cat:"Emotions",lvl:"medium",note:"'Soch samajhkar'=thoughtfully."},
+{h:"इस गाँव में बिजली नहीं है।",a:"There is no electricity in this village.",hint:"Rural infrastructure",cat:"Daily life",lvl:"medium",note:"'Bijli nahi'=no electricity."},
+{h:"उसकी आवाज़ बहुत मीठी है।",a:"Her voice is very sweet.",hint:"Voice compliment",cat:"Daily life",lvl:"medium",note:"'Aawaaz'=voice, 'meethi'=sweet."},
+{h:"बारिश के बाद इंद्रधनुष निकला।",a:"A rainbow appeared after the rain.",hint:"Rainbow after rain",cat:"Nature",lvl:"medium",note:"'Indradhanush'=rainbow."},
+{h:"मैं अगले हफ्ते मुंबई जाऊँगा।",a:"I will go to Mumbai next week.",hint:"Travel plan",cat:"Travel",lvl:"medium",note:"'Agle hafte'=next week."},
+{h:"उसे बचपन से ही पढ़ने का शौक था।",a:"He had a passion for reading since childhood.",hint:"Childhood interest",cat:"Education",lvl:"medium",note:"'Bachpan se'=since childhood."},
+{h:"रोज़ पानी पीना सेहत के लिए ज़रूरी है।",a:"Drinking water every day is essential for health.",hint:"Health tip",cat:"Health",lvl:"medium",note:"'Sehat ke liye'=for health."},
+{h:"वह हर सुबह योग करती है।",a:"She does yoga every morning.",hint:"Morning yoga",cat:"Health",lvl:"medium",note:"'Har subah yoga karti hai.'"},
+{h:"मोबाइल फोन आज की ज़रूरत बन गया है।",a:"The mobile phone has become a necessity today.",hint:"Modern necessity",cat:"Technology",lvl:"medium",note:"'Zaroorat'=necessity."},
+{h:"क्या आपने यह फ़िल्म देखी है?",a:"Have you watched this film?",hint:"Film question",cat:"Hobbies",lvl:"medium",note:"'Film dekhi hai.'"},
+{h:"उसका व्यवहार बहुत विनम्र है।",a:"His behaviour is very polite.",hint:"Polite person",cat:"Emotions",lvl:"medium",note:"'Vinamr'=polite."},
+{h:"दादी जी रोज़ रामायण पढ़ती हैं।",a:"Grandmother reads the Ramayana every day.",hint:"Daily reading ritual",cat:"Family",lvl:"medium",note:"'Dadi ji'=grandmother."},
+{h:"इस साल फसल बहुत अच्छी हुई।",a:"The crop was very good this year.",hint:"Good harvest",cat:"Nature",lvl:"medium",note:"'Fasal'=crop."},
+{h:"उसने बहुत मेहनत से खाना पकाया।",a:"She cooked the food with great effort.",hint:"Cooking with effort",cat:"Food",lvl:"medium",note:"'Mehnat se'=with effort."},
+{h:"सफर में बहुत थकान हो जाती है।",a:"One gets very tired during a journey.",hint:"Travel fatigue",cat:"Travel",lvl:"medium",note:"'Safar mein thakaan.'"},
+{h:"वह अपने परिवार से बहुत प्यार करता है।",a:"He loves his family very much.",hint:"Family love",cat:"Family",lvl:"medium",note:"'Pyaar karna'=to love."},
+
+/* ── HARD (81-120) ───────────────────────────────────── */
+{h:"यदि तुम कड़ी मेहनत करोगे तो ज़रूर सफल होगे।",a:"If you work hard, you will surely succeed.",hint:"Conditional motivation",cat:"Motivation",lvl:"hard",note:"'Yadi'=if, 'zaroor safal hoge.'"},
+{h:"सरकार ने नई शिक्षा नीति लागू की है।",a:"The government has implemented a new education policy.",hint:"Government policy",cat:"Education",lvl:"hard",note:"'Shiksha neeti'=education policy."},
+{h:"उसने अपना सारा जीवन दूसरों की सेवा में बिताया।",a:"He spent his entire life serving others.",hint:"Selfless life",cat:"Motivation",lvl:"hard",note:"'Saara jeevan'=entire life."},
+{h:"इस समस्या का हल निकालना बहुत ज़रूरी है।",a:"It is very important to find a solution to this problem.",hint:"Urgent problem",cat:"Work",lvl:"hard",note:"'Samasya ka hal'=solution."},
+{h:"जो बीत गई सो बात गई।",a:"What is gone is gone.",hint:"Proverb about the past",cat:"Proverbs",lvl:"hard",note:"Classic: let go of the past."},
+{h:"वह इतना थका हुआ था कि खड़ा भी नहीं हो सकता था।",a:"He was so tired that he could not even stand.",hint:"Extreme exhaustion",cat:"Health",lvl:"hard",note:"'Itna thaka hua tha.'"},
+{h:"बिना सोचे समझे कोई निर्णय नहीं लेना चाहिए।",a:"One should not make any decision without thinking carefully.",hint:"Decision-making advice",cat:"Motivation",lvl:"hard",note:"'Nirṇay'=decision."},
+{h:"समाज में सभी के साथ समान व्यवहार होना चाहिए।",a:"Everyone in society should be treated equally.",hint:"Social equality",cat:"Proverbs",lvl:"hard",note:"'Saman vyavhaar'=equal treatment."},
+{h:"मैं अपने सपनों को हकीकत में बदलना चाहता हूँ।",a:"I want to turn my dreams into reality.",hint:"Ambition",cat:"Motivation",lvl:"hard",note:"'Haqeeqat mein badalna.'"},
+{h:"तकनीक ने हमारी ज़िंदगी को बदल दिया है।",a:"Technology has changed our lives.",hint:"Technology impact",cat:"Technology",lvl:"hard",note:"'Takneek'=technology."},
+{h:"जितना पढ़ोगे उतना ही ज्ञान बढ़ेगा।",a:"The more you read, the more your knowledge will grow.",hint:"Reading and knowledge",cat:"Education",lvl:"hard",note:"'Gyaan'=knowledge."},
+{h:"उसने अपनी मेहनत से सबको हैरान कर दिया।",a:"He surprised everyone with his hard work.",hint:"Impressive effort",cat:"Motivation",lvl:"hard",note:"'Hairan kar diya'=surprised everyone."},
+{h:"देश की प्रगति के लिए शिक्षा सबसे ज़रूरी है।",a:"Education is the most important thing for the progress of the country.",hint:"Education and development",cat:"Education",lvl:"hard",note:"'Desh ki pragati'=country's progress."},
+{h:"इंसान गलतियाँ करता है लेकिन उनसे सीखना ज़रूरी है।",a:"Humans make mistakes but it is important to learn from them.",hint:"Learning from mistakes",cat:"Motivation",lvl:"hard",note:"'Galtiyaan'=mistakes."},
+{h:"वह जहाँ भी जाता है सबका दिल जीत लेता है।",a:"Wherever he goes, he wins everyone's heart.",hint:"Charming person",cat:"Motivation",lvl:"hard",note:"'Dil jeet leta hai.'"},
+{h:"परिस्थितियाँ कितनी भी कठिन हों, हार नहीं मानना चाहिए।",a:"No matter how difficult the circumstances are, one should not give up.",hint:"Perseverance",cat:"Proverbs",lvl:"hard",note:"'Haar nahi maanna'=not give up."},
+{h:"इस शहर की आबादी पिछले दशक में दोगुनी हो गई।",a:"The population of this city doubled in the last decade.",hint:"City population growth",cat:"Daily life",lvl:"hard",note:"'Aabaadi'=population, 'doguni'=doubled."},
+{h:"उसे अपनी जिम्मेदारियों का पूरा एहसास है।",a:"He is fully aware of his responsibilities.",hint:"Responsibility awareness",cat:"Work",lvl:"hard",note:"'Zimmedaariyaan'=responsibilities."},
+{h:"जिसने कभी संघर्ष नहीं किया वह जीत का मज़ा नहीं जानता।",a:"One who has never struggled does not know the joy of victory.",hint:"Struggle and victory",cat:"Proverbs",lvl:"hard",note:"'Sangharsh'=struggle."},
+{h:"उसकी दयालुता ने पूरे गाँव का दिल जीत लिया।",a:"His kindness won the hearts of the entire village.",hint:"Kindness and community",cat:"Motivation",lvl:"hard",note:"'Dayaluta'=kindness."},
+{h:"अगर हम एकजुट होकर काम करें तो कोई भी काम असंभव नहीं।",a:"If we work together in unity, no task is impossible.",hint:"Power of unity",cat:"Proverbs",lvl:"hard",note:"'Ekjut hokar'=in unity."},
+{h:"उसने अपनी मातृभाषा का सम्मान करना कभी नहीं छोड़ा।",a:"He never stopped respecting his mother tongue.",hint:"Respect for mother tongue",cat:"Education",lvl:"hard",note:"'Matrubhasha'=mother tongue."},
+{h:"विज्ञान और तकनीक के बिना आधुनिक जीवन की कल्पना नहीं की जा सकती।",a:"Modern life cannot be imagined without science and technology.",hint:"Science in modern life",cat:"Technology",lvl:"hard",note:"'Vigyan'=science."},
+{h:"वह हर मुश्किल में अपने परिवार के साथ खड़ा रहा।",a:"He stood by his family in every difficulty.",hint:"Family support",cat:"Family",lvl:"hard",note:"'Mushkil mein'=in difficulty."},
+{h:"उसने सालों की मेहनत के बाद अपना सपना पूरा किया।",a:"He fulfilled his dream after years of hard work.",hint:"Long-term goal achieved",cat:"Motivation",lvl:"hard",note:"'Saalon ki mehnat.'"},
+{h:"भाषा केवल संवाद का साधन नहीं बल्कि संस्कृति की पहचान है।",a:"Language is not merely a means of communication but also an identity of culture.",hint:"Language and culture",cat:"Education",lvl:"hard",note:"'Bhaasha'=language, 'sanskriti'=culture."},
+{h:"स्वास्थ्य ही सबसे बड़ा धन है।",a:"Health is the greatest wealth.",hint:"Famous health proverb",cat:"Proverbs",lvl:"hard",note:"'Swasthya'=health, 'dhan'=wealth."},
+{h:"उसने बिना किसी मदद के पूरा प्रोजेक्ट खुद किया।",a:"He completed the entire project alone without any help.",hint:"Self-reliance",cat:"Work",lvl:"hard",note:"'Bina kisi madad ke'=without any help."},
+{h:"आर्थिक स्थिति सुधारने के लिए उसने दो नौकरियाँ कीं।",a:"He took up two jobs to improve his financial situation.",hint:"Financial hardship",cat:"Work",lvl:"hard",note:"'Aarthik sthiti'=financial situation."},
+{h:"उसकी बातों में हमेशा गहराई होती है।",a:"There is always depth in what he says.",hint:"Thoughtful speaker",cat:"Emotions",lvl:"hard",note:"'Gehraai'=depth."},
+{h:"एक अच्छे नेता में सहनशीलता और साहस दोनों होने चाहिए।",a:"A good leader should have both patience and courage.",hint:"Leadership qualities",cat:"Motivation",lvl:"hard",note:"'Sahanshilta'=patience, 'sahas'=courage."},
+{h:"जो समय पर नहीं जागा उसका अवसर निकल जाता है।",a:"Whoever does not wake up on time loses the opportunity.",hint:"Proverb about time",cat:"Proverbs",lvl:"hard",note:"'Avsar'=opportunity."},
+{h:"इंटरनेट ने दुनिया को एक छोटे से गाँव में बदल दिया है।",a:"The internet has turned the world into a small village.",hint:"Internet and global village",cat:"Technology",lvl:"hard",note:"'Duniya'=world, 'gaon'=village."},
+{h:"उसने अपने बुरे वक्त में भी हिम्मत नहीं हारी।",a:"He did not lose courage even in his bad times.",hint:"Courage in hardship",cat:"Motivation",lvl:"hard",note:"'Bure waqt mein'=in bad times."},
+{h:"सच बोलना हमेशा आसान नहीं होता लेकिन ज़रूरी होता है।",a:"Telling the truth is not always easy but it is necessary.",hint:"Truth and necessity",cat:"Proverbs",lvl:"hard",note:"'Sach bolna'=to tell the truth."},
+{h:"बेटी पढ़ाओ तो देश को रोशन करो।",a:"Educate a daughter and you illuminate the nation.",hint:"Women's education",cat:"Education",lvl:"hard",note:"'Roshni'=light/illumination."},
+{h:"जो दूसरों के दुख में काम आए वही सच्चा इंसान है।",a:"One who comes to the aid of others in sorrow is a true human being.",hint:"Empathy and humanity",cat:"Proverbs",lvl:"hard",note:"'Sach'a insaan'=true human being."},
+{h:"उसने साबित किया कि लगन और मेहनत से कुछ भी हासिल किया जा सकता है।",a:"He proved that with dedication and hard work anything can be achieved.",hint:"Dedication and achievement",cat:"Motivation",lvl:"hard",note:"'Lagan'=dedication."},
+{h:"अच्छा खाना खाने से ही शरीर और मन दोनों स्वस्थ रहते हैं।",a:"Only by eating good food do both the body and mind stay healthy.",hint:"Food and wellbeing",cat:"Health",lvl:"hard",note:"'Sharir'=body, 'man'=mind."},
+{h:"पर्यटन से न केवल आनंद मिलता है बल्कि नई संस्कृतियों की जानकारी भी होती है।",a:"Tourism not only brings joy but also provides knowledge of new cultures.",hint:"Benefits of tourism",cat:"Travel",lvl:"hard",note:"'Paryatan'=tourism, 'aanand'=joy."},
+];
+
+/* ════════ STATE ════════ */
+let diffFilter='all', catFilter='all';
+let filtered=[],order=[],idx=0,correct=0,wrong=0,streak=0,answered=false;
+const catStats={};
+
+const skillMap={daily:'Daily life',work:'Work',edu:'Education',emo:'Emotions',
+  nat:'Nature',trv:'Travel',mot:'Motivation',pro:'Proverbs',hlt:'Health',fod:'Food'};
+
+function getFiltered(){
+  return Q.filter(q=>{
+    const d=diffFilter==='all'||q.lvl===diffFilter;
+    const c=catFilter==='all'||q.cat===catFilter;
+    return d&&c;
+  });
+}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+
+function init(){
+  filtered=getFiltered();
+  if(!filtered.length){filtered=Q;}
+  order=shuffle(filtered.map((_,i)=>i));
+  idx=0;correct=0;wrong=0;streak=0;answered=false;
+  Object.keys(catStats).forEach(k=>delete catStats[k]);
+  const cc=document.getElementById('complete-card');
+  cc.classList.remove('show'); cc.style.display='none';
+  document.getElementById('q-comment').style.display='flex';
+  document.getElementById('a-comment').style.display='flex';
+  document.getElementById('conv-count').textContent=filtered.length;
+  updateStats(); updateSkillBars(); loadQ();
+}
+
+function loadQ(){
+  if(idx>=filtered.length){showComplete();return;}
+  const q=filtered[order[idx]];
+  document.getElementById('q-num').textContent=`Question ${idx+1} of ${filtered.length}`;
+  document.getElementById('hindi-q').textContent=q.h;
+  document.getElementById('hint-q').textContent='💡 '+q.hint;
+  document.getElementById('cat-badge').textContent=q.cat;
+  const db=document.getElementById('diff-badge');
+  db.textContent=q.lvl[0].toUpperCase()+q.lvl.slice(1);
+  db.className='diff-badge '+q.lvl;
+
+  const ta=document.getElementById('user-ans');
+  ta.value=''; ta.disabled=false;
+  setTimeout(()=>ta.focus(),80);
+
+  const box=document.getElementById('answer-box');
+  box.style.display='none'; box.className='answer-box';
+  document.getElementById('event-line').style.display='none';
+  ['btn-check','btn-ai','btn-reveal'].forEach(id=>document.getElementById(id).disabled=false);
+  answered=false;
+
+  const qc=document.getElementById('q-comment');
+  qc.style.animation='none'; void qc.offsetHeight;
+  qc.style.animation='fadeSlideIn .3s ease both';
+}
+
+function norm(s){
+  return s.toLowerCase().replace(/['']/g,"'").replace(/[^a-z0-9' ]/g,'').replace(/\s+/g,' ').trim();
+}
+
+function checkAnswer(){
+  if(answered) return;
+  const q=filtered[order[idx]];
+  const val=document.getElementById('user-ans').value.trim();
+  if(!val) return;
+  const ok=norm(val)===norm(q.a);
+  commitResult(ok,q,false);
+}
+
+function revealAnswer(){
+  if(answered) return;
+  const q=filtered[order[idx]];
+  commitResult(false,q,true);
+}
+
+function commitResult(ok,q,revealed){
+  if(ok){correct++;streak++;}else{wrong++;streak=0;}
+  trackCat(q.cat,ok);
+  showBox(ok,q,revealed);
+  ['btn-check','btn-ai','btn-reveal'].forEach(id=>document.getElementById(id).disabled=true);
+  document.getElementById('user-ans').disabled=true;
+  answered=true; idx++;
+  updateStats(); updateSkillBars(); animateStreak();
+}
+
+function showBox(ok,q,revealed){
+  const box=document.getElementById('answer-box');
+  if(revealed){
+    box.className='answer-box answer-reveal show';
+    box.innerHTML=`<strong style="color:var(--text2)">Answer revealed:</strong>
+      <div class="correct-text">${q.a}</div>
+      <div class="note-text">${q.note}</div>`;
+  } else if(ok){
+    box.className='answer-box answer-correct show';
+    box.innerHTML=`<strong>✓ Correct!</strong> ${q.a}
+      <div class="note-text">${q.note}</div>`;
+  } else {
+    box.className='answer-box answer-wrong show';
+    box.innerHTML=`<strong style="color:var(--red-text)">✗ Not quite.</strong> Correct answer:
+      <div class="correct-text">${q.a}</div>
+      <div class="note-text">${q.note}</div>`;
+  }
+  box.style.display='block';
+}
+
+/* ── AI Grade via Anthropic API ── */
+async function aiCheck(){
+  if(answered) return;
+  const q=filtered[order[idx]];
+  const val=document.getElementById('user-ans').value.trim();
+  if(!val){document.getElementById('user-ans').focus();return;}
+
+  ['btn-check','btn-ai','btn-reveal'].forEach(id=>document.getElementById(id).disabled=true);
+  document.getElementById('user-ans').disabled=true;
+
+  const box=document.getElementById('answer-box');
+  box.className='answer-box answer-ai show';
+  box.style.display='block';
+  box.innerHTML=`<div class="ai-loading"><div class="ai-spinner"></div> AI is grading your translation…</div>`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:500,
+        system:`You are a strict but fair Hindi-English translation evaluator.
+Respond ONLY with valid JSON — no markdown fences, no extra text:
+{"score":<0-100>,"correct":<true if score>=70>,"verdict":"<6 words max>","feedback":"<1-2 sentences on what was right/wrong>","ideal":"<best English translation>"}`,
+        messages:[{role:'user',content:`Hindi: ${q.h}\nReference: ${q.a}\nStudent: ${val}`}]
+      })
+    });
+    const data=await res.json();
+    const raw=(data.content||[]).find(b=>b.type==='text')?.text||'{}';
+    const j=JSON.parse(raw.replace(/```[a-z]*/gi,'').replace(/```/g,'').trim());
+
+    const score=Math.max(0,Math.min(100,parseInt(j.score)||0));
+    const ok=!!j.correct;
+    const clr=score>=80?'var(--green-text)':score>=50?'var(--orange-text)':'var(--red-text)';
+    const fillClr=score>=80?'#3fb950':score>=50?'#d29922':'#f85149';
+
+    box.className=`answer-box ${ok?'answer-correct':'answer-wrong'} show`;
+    box.innerHTML=`
+      <div class="ai-score-bar">
+        <div class="ai-score-pill">✦ AI: <strong style="color:${clr}">${score}/100</strong></div>
+        <div class="score-meter"><div class="score-fill" style="width:${score}%;background:${fillClr}"></div></div>
+        <span class="ai-verdict">${j.verdict||''}</span>
+      </div>
+      <div class="ai-feedback">${j.feedback||''}</div>
+      <div class="correct-text">${j.ideal||q.a}</div>
+      <div class="note-text">${q.note}</div>`;
+
+    if(ok){correct++;streak++;}else{wrong++;streak=0;}
+    trackCat(q.cat,ok);
+    answered=true; idx++;
+    updateStats(); updateSkillBars(); animateStreak();
+
+  }catch(e){
+    box.innerHTML=`<div style="color:var(--orange-text)">⚠ AI unavailable — falling back to exact match.</div>`;
+    ['btn-check','btn-ai','btn-reveal'].forEach(id=>document.getElementById(id).disabled=false);
+    document.getElementById('user-ans').disabled=false;
+    setTimeout(()=>{box.style.display='none';},1000);
+  }
+}
+
+function nextQuestion(){
+  const ev=document.getElementById('event-line');
+  document.getElementById('event-text').textContent=
+    `Moving to question ${Math.min(idx+1,filtered.length)} of ${filtered.length}…`;
+  ev.style.display='flex';
+  setTimeout(()=>{ev.style.display='none';loadQ();},450);
+}
+
+function trackCat(cat,ok){
+  if(!catStats[cat]) catStats[cat]={t:0,c:0};
+  catStats[cat].t++;
+  if(ok) catStats[cat].c++;
+}
+
+function updateStats(){
+  const done=correct+wrong;
+  const pct=done>0?Math.round(correct/done*100):0;
+  document.getElementById('stat-done').textContent=done;
+  document.getElementById('stat-correct').textContent=correct;
+  document.getElementById('stat-wrong').textContent=wrong;
+  document.getElementById('stat-pct').textContent=pct+'%';
+  const total=filtered.length;
+  const pp=Math.round(Math.min(idx,total)/total*100);
+  document.getElementById('prog-fill').style.width=pp+'%';
+  document.getElementById('prog-label').textContent=`Progress — ${Math.min(idx,total)} of ${total}`;
+  document.getElementById('prog-pct').textContent=pp+'%';
+}
+
+function animateStreak(){
+  const el=document.getElementById('streak-num');
+  el.textContent=streak;
+  el.style.animation='none'; void el.offsetHeight;
+  el.style.animation='streakPop .3s cubic-bezier(.34,1.56,.64,1)';
+}
+
+function updateSkillBars(){
+  Object.entries(skillMap).forEach(([k,cat])=>{
+    const s=catStats[cat];
+    const pct=s?Math.round(s.c/s.t*100):null;
+    document.getElementById('sk-'+k).textContent=pct===null?'—':pct+'%';
+    document.getElementById('sf-'+k).style.width=(pct||0)+'%';
+  });
+}
+
+function showComplete(){
+  document.getElementById('q-comment').style.display='none';
+  document.getElementById('a-comment').style.display='none';
+  const cc=document.getElementById('complete-card');
+  cc.style.display='block'; void cc.offsetHeight; cc.classList.add('show');
+  const pct=filtered.length>0?Math.round(correct/filtered.length*100):0;
+  document.getElementById('final-score').textContent=`${correct}/${filtered.length}`;
+  document.getElementById('fs-c').textContent=correct;
+  document.getElementById('fs-w').textContent=wrong;
+  document.getElementById('fs-p').textContent=pct;
+  document.getElementById('final-msg').textContent=
+    pct>=80?'🎉 Excellent! You are a translation master!':
+    pct>=50?'👍 Good effort! Keep practicing daily.':
+    '💪 Keep going — practice makes perfect!';
+}
+
+function restart(){init();}
+
+function setDiff(lvl,btn){
+  document.querySelectorAll('#diff-row .filter-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  diffFilter=lvl; init();
+}
+function setCat(cat,btn){
+  document.querySelectorAll('#cat-row .filter-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  catFilter=cat; init();
+}
+
+/* wire up filter rows with IDs so selectors work cleanly */
+document.querySelector('.filter-row').id='diff-row';
+document.querySelectorAll('.filter-row')[1].id='cat-row';
+
+document.getElementById('user-ans').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();checkAnswer();}
+});
+
+init();
+</script>
+</body>
+</html>
